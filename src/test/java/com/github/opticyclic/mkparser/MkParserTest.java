@@ -5,8 +5,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class MkParserTest {
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+public class MkParserTest {
     private MkParser mkParser;
 
     @BeforeClass
@@ -28,6 +30,14 @@ public class MkParserTest {
     public void testGetMkFromLine(String line, String expectedFile) throws Exception {
         String mkFile = mkParser.getMkFromLine(line);
         Assert.assertEquals(mkFile, expectedFile);
+    }
+
+    @Test
+    public void testGetPathFromString() throws Exception {
+        String deviceDir = "/tmp/android/device/samsung/tuna/";
+        Path rootDir = Paths.get(deviceDir);
+        String path = mkParser.getPathFromString(rootDir, "$(LOCAL_DIR)/full_tuna.mk");
+        Assert.assertEquals(path, deviceDir + "full_tuna.mk");
     }
 
 }
