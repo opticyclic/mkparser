@@ -6,9 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MkParser {
+
+    private Set<String> fileNames = new HashSet<>();
 
     public static void main(String[] args) {
         if (args.length != 2) {
@@ -35,14 +39,18 @@ public class MkParser {
     }
 
     private void addNode(Path romRoot, TreeNode root, String productMakeFile) {
-        TreeNode treeNode = root.addChild(productMakeFile);
-        if (Files.isRegularFile(Paths.get(productMakeFile))) {
-            List<String> inheritedFiles = getInheritedFiles(romRoot, Paths.get(productMakeFile));
-            for (String inheritedFile : inheritedFiles) {
-                addNode(romRoot, treeNode, inheritedFile);
+        //Don't recurse over the same object twice
+        if (!fileNames.contains(productMakeFile)) {
+            fileNames.add(productMakeFile);
+            TreeNode treeNode = root.addChild(productMakeFile);
+            if (Files.isRegularFile(Paths.get(productMakeFile))) {
+                List<String> inheritedFiles = getInheritedFiles(romRoot, Paths.get(productMakeFile));
+                for (String inheritedFile : inheritedFiles) {
+                    addNode(romRoot, treeNode, inheritedFile);
+                }
+            } else {
+                treeNode.addChild("^^^^^File cannot be found^^^^^");
             }
-        } else {
-            treeNode.addChild("^^^^^File cannot be found^^^^^");
         }
     }
 
