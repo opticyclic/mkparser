@@ -1,7 +1,9 @@
 package com.github.opticyclic.mkparser;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,6 +36,11 @@ public class MkParser {
         TreeNode root = new TreeNode(androidProducts.toString());
         for (String productMakeFile : productMakeFiles) {
             addNode(romRoot, root, productMakeFile);
+        }
+        //Now loop over the rest of the mk files in the dir in case we missed anything
+        List<File> files = getFilesOfType(deviceRoot, "*.mk");
+        for (File file : files) {
+            addNode(romRoot, root, file.getAbsolutePath());
         }
         return root;
     }
@@ -170,5 +177,17 @@ public class MkParser {
     public String getPathFromString(String rootDir, String mkFile) {
         String fullPath = mkFile.replace("$(LOCAL_DIR)", rootDir);
         return fullPath.replace("//", "/");
+    }
+
+    private List<File> getFilesOfType(Path directory, String glob) {
+        List<File> files = new ArrayList<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, glob)) {
+            for (Path entry : stream) {
+                files.add(entry.toFile());
+            }
+            return files;
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading directory " + directory, e);
+        }
     }
 }
