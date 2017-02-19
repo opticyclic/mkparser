@@ -18,10 +18,11 @@ public class MkParser {
         String directory = args[0];
         Path deviceRoot = Paths.get(directory);
         MkParser mkParser = new MkParser();
-        mkParser.parseDir(deviceRoot);
+        TreeNode tree = mkParser.parseDir(deviceRoot);
+        System.out.println(tree.toString());
     }
 
-    public void parseDir(Path deviceRoot) {
+    public TreeNode parseDir(Path deviceRoot) {
         //Ignore Android.mk as it inevitably just includes all mk files below
         //Start at AndroidProducts.mk
         Path androidProducts = deviceRoot.resolve("AndroidProducts.mk");
@@ -34,7 +35,7 @@ public class MkParser {
                 treeNode.addChild(inheritedFile);
             }
         }
-        System.out.println(root.toString());
+        return root;
     }
 
     public List<String> getProductMakeFiles(Path makefile) {
