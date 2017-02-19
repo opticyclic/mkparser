@@ -115,13 +115,25 @@ public class MkParser {
     public List<String> parseInheritedLines(List<String> allLines, String rootDir, String deviceDir) {
         List<String> files = new ArrayList<>();
         for (String line : allLines) {
-            if (line.contains("call inherit-product")) {
-                String mkFile = getMkFromInheritLine(line);
-                if (!mkFile.isEmpty()) {
+            if (!line.trim().startsWith("#") && !line.contains("all-makefiles-under")) {
+                if (line.contains("call inherit-product")) {
+                    String mkFile = getMkFromInheritLine(line);
+                    if (!mkFile.isEmpty()) {
+                        String makePath;
+                        if (mkFile.contains("$(SRC_TARGET_DIR)")) {
+                            makePath = mkFile.replace("$(SRC_TARGET_DIR)", "build/target");
+                            makePath = rootDir + "/" + makePath;
+                        } else {
+                            makePath = rootDir + "/" + mkFile;
+                        }
+                        makePath.replaceAll("//", "/");
+                        files.add(makePath);
+                    }
+                } else if (line.contains("include")) {
+                    String mkFile = line.substring(line.indexOf("include") + 7).trim();
                     String makePath;
-                    if (mkFile.contains("$(SRC_TARGET_DIR)")) {
-                        makePath = mkFile.replace("$(SRC_TARGET_DIR)", "build/target");
-                        makePath = rootDir + "/" + makePath;
+                    if (mkFile.contains("$(LOCAL_PATH)")) {
+                        makePath = mkFile.replace("$(LOCAL_PATH)", deviceDir);
                     } else {
                         makePath = rootDir + "/" + mkFile;
                     }
