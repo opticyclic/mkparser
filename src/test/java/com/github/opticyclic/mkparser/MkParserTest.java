@@ -32,6 +32,21 @@ public class MkParserTest {
         Assert.assertEquals(mkFile, expectedFile);
     }
 
+    @DataProvider(name = "inherited-lines")
+    public static Object[][] inheritedLines() {
+        return new Object[][]{
+                {"$(call inherit-product-if-exists, vendor/ti/omap4/omap4-vendor.mk)", "vendor/ti/omap4/omap4-vendor.mk"},
+                {"# $(call inherit-product-if-exists, vendor/ti/omap4/omap4-vendor.mk)", ""},
+                {"$(call inherit-product, $(LOCAL_PATH)/qemu_base.mk)", "$(LOCAL_PATH)/qemu_base.mk"}
+        };
+    }
+
+    @Test(dataProvider = "inherited-lines")
+    public void testGetMkFromInheritedLines(String line, String expectedFile) throws Exception {
+        String mkFile = mkParser.getMkFromInheritLine(line);
+        Assert.assertEquals(mkFile, expectedFile);
+    }
+
     @Test
     public void testGetPathFromString() throws Exception {
         String deviceDir = "/tmp/android/device/samsung/tuna/";

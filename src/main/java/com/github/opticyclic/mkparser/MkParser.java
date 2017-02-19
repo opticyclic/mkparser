@@ -87,6 +87,25 @@ public class MkParser {
         return filename;
     }
 
+    public String getMkFromInheritLine(String line) {
+        String filename = "";
+        if (line.contains(".mk")) {
+            String trim = line.trim();
+            //Ignore commented lines
+            if (!trim.startsWith("#")) {
+                String substring = trim.substring(trim.indexOf("call inherit-product"));
+                String[] split = substring.split(",");
+                filename = split[1].trim();
+                int trailingBracket = filename.lastIndexOf(')');
+                int extension = filename.lastIndexOf("mk");
+                if (trailingBracket > extension) {
+                    filename = filename.substring(0, trailingBracket);
+                }
+            }
+        }
+        return filename;
+    }
+
     /**
      * Take the make file line and try to parse out the variables into full paths
      *
