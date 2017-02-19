@@ -36,9 +36,13 @@ public class MkParser {
 
     private void addNode(Path romRoot, TreeNode root, String productMakeFile) {
         TreeNode treeNode = root.addChild(productMakeFile);
-        List<String> inheritedFiles = getInheritedFiles(romRoot, Paths.get(productMakeFile));
-        for (String inheritedFile : inheritedFiles) {
-            addNode(romRoot, treeNode, inheritedFile);
+        if (Files.isRegularFile(Paths.get(productMakeFile))) {
+            List<String> inheritedFiles = getInheritedFiles(romRoot, Paths.get(productMakeFile));
+            for (String inheritedFile : inheritedFiles) {
+                addNode(romRoot, treeNode, inheritedFile);
+            }
+        } else {
+            treeNode.addChild("^^^^^File cannot be found^^^^^");
         }
     }
 
