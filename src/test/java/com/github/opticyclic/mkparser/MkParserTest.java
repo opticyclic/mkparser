@@ -5,6 +5,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MkParserTest {
     private MkParser mkParser;
 
@@ -34,6 +37,25 @@ public class MkParserTest {
         String deviceDir = "/tmp/android/device/samsung/tuna/";
         String path = mkParser.getPathFromString(deviceDir, "$(LOCAL_DIR)/full_tuna.mk");
         Assert.assertEquals(path, deviceDir + "full_tuna.mk");
+    }
+
+    @Test
+    public void testParseProductLines() throws Exception {
+        List<String> allLines = new ArrayList<>();
+        allLines.add("# See the License for the specific language governing permissions and");
+        allLines.add("# limitations under the License.");
+        allLines.add("#");
+        allLines.add("");
+        allLines.add("        PRODUCT_MAKEFILES ;= \\");
+        allLines.add("        $(LOCAL_DIR)/aosp_maguro.mk \\");
+        allLines.add("        $(LOCAL_DIR)/full_maguro.mk");
+        String rootDir = "/tmp/android/device/samsung/tuna/";
+        List<String> productLines = mkParser.parseProductLines(allLines, rootDir);
+        List<String> expectedLines = new ArrayList<>();
+        expectedLines.add("/tmp/android/device/samsung/tuna/aosp_maguro.mk");
+        expectedLines.add("/tmp/android/device/samsung/tuna/full_maguro.mk");
+
+        Assert.assertEquals(productLines, expectedLines);
     }
 
 }
