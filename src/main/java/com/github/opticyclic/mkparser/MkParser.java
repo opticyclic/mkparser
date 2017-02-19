@@ -1,7 +1,5 @@
 package com.github.opticyclic.mkparser;
 
-import java.nio.file.Path;
-
 public class MkParser {
 
     /**
@@ -22,11 +20,11 @@ public class MkParser {
     /**
      * Take the make file line and try to parse out the variables into full paths
      *
-     * @param root   is the directory of the file that the mkFile snippet came from
-     * @param mkFile will typically by prefixed wih a variable that needs converting to an absolute path
+     * @param rootDir is the directory of the file that the mkFile snippet came from
+     * @param mkFile  will typically by prefixed wih a variable that needs converting to an absolute path
      * @return an absolute path to the make file even if it doesn't exist
      */
-    public String getPathFromString(Path root, String mkFile) {
-        return mkFile.replace("$(LOCAL_DIR)", root.toString());
+    public String getPathFromString(String rootDir, String mkFile) {
+        return mkFile.replace("$(LOCAL_DIR)", rootDir);
     }
 }
