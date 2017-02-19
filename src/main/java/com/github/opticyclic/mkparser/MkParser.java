@@ -111,7 +111,13 @@ public class MkParser {
             if (line.contains("call inherit-product")) {
                 String mkFile = getMkFromInheritLine(line);
                 if (!mkFile.isEmpty()) {
-                    String makePath = rootDir + "/" + mkFile;
+                    String makePath;
+                    if (mkFile.contains("$(SRC_TARGET_DIR)")) {
+                        makePath = mkFile.replace("$(SRC_TARGET_DIR)", "build/target");
+                        makePath = rootDir + "/" + makePath;
+                    } else {
+                        makePath = rootDir + "/" + mkFile;
+                    }
                     makePath.replaceAll("//", "/");
                     files.add(makePath);
                 }
