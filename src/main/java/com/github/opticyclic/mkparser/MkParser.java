@@ -28,8 +28,11 @@ public class MkParser {
         List<String> productMakeFiles = getProductMakeFiles(androidProducts);
         TreeNode root = new TreeNode(androidProducts.toString());
         for (String productMakeFile : productMakeFiles) {
-            root.addChild(productMakeFile);
-            List<String> includedFiles = getIncludedFiles(productMakeFile);
+            TreeNode treeNode = root.addChild(productMakeFile);
+            List<String> inheritedFiles = getInheritedFiles(Paths.get(productMakeFile));
+            for (String inheritedFile : inheritedFiles) {
+                treeNode.addChild(inheritedFile);
+            }
         }
         System.out.println(root.toString());
     }
@@ -66,9 +69,28 @@ public class MkParser {
         return files;
     }
 
-    public List<String> getIncludedFiles(String productMakeFile) {
+    public List<String> getInheritedFiles(Path productMakeFile) {
         List<String> files = new ArrayList<>();
+        try {
+            List<String> allLines = Files.readAllLines(productMakeFile, Charset.defaultCharset());
+            files = parseInheritedLines(allLines, productMakeFile.getParent().toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return files;
+    }
 
+    public List<String> parseInheritedLines(List<String> allLines, String rootDir) {
+        List<String> files = new ArrayList<>();
+        for (String line : allLines) {
+            if (line.contains("call inherit-product")) {
+                String mkFile = getMkFromInheritLine(line);
+                if (!mkFile.isEmpty()) {
+                    String makePath = getPathFromString(rootDir, mkFile);
+                    files.add(makePath);
+                }
+            }
+        }
         return files;
     }
 
