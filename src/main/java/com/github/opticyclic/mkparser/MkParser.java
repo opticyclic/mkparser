@@ -95,7 +95,8 @@ public class MkParser {
             if (line.contains("call inherit-product")) {
                 String mkFile = getMkFromInheritLine(line);
                 if (!mkFile.isEmpty()) {
-                    String makePath = getPathFromString(rootDir, mkFile);
+                    String makePath = rootDir + "/" + mkFile;
+                    makePath.replaceAll("//", "/");
                     files.add(makePath);
                 }
             }
