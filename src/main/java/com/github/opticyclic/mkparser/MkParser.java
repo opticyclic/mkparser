@@ -11,18 +11,18 @@ import java.util.List;
 public class MkParser {
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Pass the directory of the device you want to scan.");
+        if (args.length != 2) {
+            System.out.println("Pass the rom directory and the directory of the device you want to scan.");
             System.exit(1);
         }
-        String directory = args[0];
-        Path deviceRoot = Paths.get(directory);
+        Path romRoot = Paths.get(args[0]);
+        Path deviceRoot = Paths.get(args[1]);
         MkParser mkParser = new MkParser();
-        TreeNode tree = mkParser.parseDir(deviceRoot);
+        TreeNode tree = mkParser.parseDir(romRoot, deviceRoot);
         System.out.println(tree.toString());
     }
 
-    public TreeNode parseDir(Path deviceRoot) {
+    public TreeNode parseDir(Path romRoot, Path deviceRoot) {
         //Ignore Android.mk as it inevitably just includes all mk files below
         //Start at AndroidProducts.mk
         Path androidProducts = deviceRoot.resolve("AndroidProducts.mk");
@@ -30,7 +30,7 @@ public class MkParser {
         TreeNode root = new TreeNode(androidProducts.toString());
         for (String productMakeFile : productMakeFiles) {
             TreeNode treeNode = root.addChild(productMakeFile);
-            List<String> inheritedFiles = getInheritedFiles(Paths.get(productMakeFile));
+            List<String> inheritedFiles = getInheritedFiles(romRoot, Paths.get(productMakeFile));
             for (String inheritedFile : inheritedFiles) {
                 treeNode.addChild(inheritedFile);
             }
@@ -70,18 +70,26 @@ public class MkParser {
         return files;
     }
 
-    public List<String> getInheritedFiles(Path productMakeFile) {
+    public List<String> getInheritedFiles(Path romRoot, Path productMakeFile) {
         List<String> files = new ArrayList<>();
         try {
             List<String> allLines = Files.readAllLines(productMakeFile, Charset.defaultCharset());
-            files = parseInheritedLines(allLines, productMakeFile.getParent().toString());
+            files = parseInheritedLines(allLines, romRoot.toString(), productMakeFile.getParent().toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
         return files;
     }
 
-    public List<String> parseInheritedLines(List<String> allLines, String rootDir) {
+    /**
+     * Parse out absolute paths to makefiles called via inherit-product directives
+     *
+     * @param allLines  is the content of the makefile
+     * @param rootDir   is the root dir of the ROM
+     * @param deviceDir is the device dir that we are currently in
+     * @return a list of absolute paths to inherited make files
+     */
+    public List<String> parseInheritedLines(List<String> allLines, String rootDir, String deviceDir) {
         List<String> files = new ArrayList<>();
         for (String line : allLines) {
             if (line.contains("call inherit-product")) {

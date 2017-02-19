@@ -78,8 +78,9 @@ public class MkParserTest {
         List<String> allLines = new ArrayList<>();
         allLines.add("$(call inherit-product, device/samsung/maguro/device.mk)");
         allLines.add("$(call inherit-product-if-exists, vendor/ti/omap4/omap4-vendor.mk)");
-        String rootDir = "/tmp/android/device/samsung/maguro/";
-        List<String> inheritedLines = mkParser.parseInheritedLines(allLines, rootDir);
+        String rootDir = "/tmp/android";
+        String deviceDir = "/tmp/android/device/samsung/maguro/";
+        List<String> inheritedLines = mkParser.parseInheritedLines(allLines, rootDir, deviceDir);
         List<String> expectedLines = new ArrayList<>();
         expectedLines.add("/tmp/android/device/samsung/maguro/device.mk");
         expectedLines.add("/tmp/android/vendor/ti/omap4/omap4-vendor.mk");
