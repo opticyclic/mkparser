@@ -29,13 +29,17 @@ public class MkParser {
         List<String> productMakeFiles = getProductMakeFiles(androidProducts);
         TreeNode root = new TreeNode(androidProducts.toString());
         for (String productMakeFile : productMakeFiles) {
-            TreeNode treeNode = root.addChild(productMakeFile);
-            List<String> inheritedFiles = getInheritedFiles(romRoot, Paths.get(productMakeFile));
-            for (String inheritedFile : inheritedFiles) {
-                treeNode.addChild(inheritedFile);
-            }
+            addNode(romRoot, root, productMakeFile);
         }
         return root;
+    }
+
+    private void addNode(Path romRoot, TreeNode root, String productMakeFile) {
+        TreeNode treeNode = root.addChild(productMakeFile);
+        List<String> inheritedFiles = getInheritedFiles(romRoot, Paths.get(productMakeFile));
+        for (String inheritedFile : inheritedFiles) {
+            addNode(romRoot, treeNode, inheritedFile);
+        }
     }
 
     public List<String> getProductMakeFiles(Path makefile) {
