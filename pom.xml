@@ -18,6 +18,14 @@
     </properties>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.java</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <!-- Omit groupId as the default is org.apache.maven.plugins -->
@@ -26,6 +34,24 @@
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.github.opticyclic.mkparser.MkParser</mainClass>
+                        </manifest>
+                        <!--Don't let our login username get published!-->
+                        <manifestEntries>
+                            <Built-By>Maven</Built-By>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
