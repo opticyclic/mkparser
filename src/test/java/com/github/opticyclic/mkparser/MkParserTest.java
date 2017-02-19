@@ -5,8 +5,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class MkParserTest {
     private MkParser mkParser;
@@ -86,6 +90,18 @@ public class MkParserTest {
         expectedLines.add("/tmp/android/vendor/ti/omap4/omap4-vendor.mk");
 
         Assert.assertEquals(inheritedLines, expectedLines);
+    }
+
+    @Test
+    public void testParseDir() throws Exception {
+        URL resource = this.getClass().getResource("/device/samsung/maguro/AndroidProducts.mk");
+        Path path = Paths.get(resource.toURI());
+        Path rootDir = Paths.get(this.getClass().getResource("/").toURI());
+        Path deviceDir = path.getParent();
+        TreeNode treeNode = mkParser.parseDir(rootDir, deviceDir);
+        String output = treeNode.toString();
+        int lines = new StringTokenizer(output, "\n").countTokens();
+        Assert.assertEquals(lines, 8, output);
     }
 
 }
