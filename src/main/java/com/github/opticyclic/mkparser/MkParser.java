@@ -4,10 +4,35 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MkParser {
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Pass the directory of the device you want to scan.");
+            System.exit(1);
+        }
+        String directory = args[0];
+        Path deviceRoot = Paths.get(directory);
+        MkParser mkParser = new MkParser();
+        mkParser.parseDir(deviceRoot);
+    }
+
+    public void parseDir(Path deviceRoot) {
+        //Ignore Android.mk as it inevitably just includes all mk files below
+        //Start at AndroidProducts.mk
+        Path androidProducts = deviceRoot.resolve("AndroidProducts.mk");
+        List<String> productMakeFiles = getProductMakeFiles(androidProducts);
+        TreeNode root = new TreeNode(androidProducts.toString());
+        for (String productMakeFile : productMakeFiles) {
+            root.addChild(productMakeFile);
+            List<String> includedFiles = getIncludedFiles(productMakeFile);
+        }
+        System.out.println(root.toString());
+    }
 
     public List<String> getProductMakeFiles(Path makefile) {
         List<String> files = new ArrayList<>();
@@ -38,6 +63,12 @@ public class MkParser {
                 }
             }
         }
+        return files;
+    }
+
+    public List<String> getIncludedFiles(String productMakeFile) {
+        List<String> files = new ArrayList<>();
+
         return files;
     }
 
